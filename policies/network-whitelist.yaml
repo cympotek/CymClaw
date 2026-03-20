@@ -1,0 +1,55 @@
+# CymClaw default network whitelist
+# SPDX-License-Identifier: Apache-2.0
+#
+# Principle: deny by default, allow only what the agent needs.
+# The gateway enforces this list. On Linux, iptables rules add a second layer.
+# Entries here are synced to the gateway at startup via config.json.
+
+version: 1
+
+endpoints:
+  google_ai:
+    name: google_ai
+    description: "Gemini API (inference)"
+    hosts:
+      - generativelanguage.googleapis.com
+    port: 443
+    protocol: https
+
+  anthropic:
+    name: anthropic
+    description: "Anthropic API (OpenClaw)"
+    hosts:
+      - api.anthropic.com
+      - statsig.anthropic.com
+    port: 443
+    protocol: https
+
+  openclaw:
+    name: openclaw
+    description: "OpenClaw service endpoints"
+    hosts:
+      - openclaw.ai
+      - clawhub.com
+      - docs.openclaw.ai
+    port: 443
+    protocol: https
+
+  github:
+    name: github
+    description: "GitHub (git operations)"
+    hosts:
+      - github.com
+      - api.github.com
+      - objects.githubusercontent.com
+      - raw.githubusercontent.com
+    port: 443
+    protocol: https
+
+  npm_registry:
+    name: npm_registry
+    description: "npm package registry"
+    hosts:
+      - registry.npmjs.org
+    port: 443
+    protocol: https

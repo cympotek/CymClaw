@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CymClaw — Config UI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="8" fill="#2563eb"/>
+        <path d="M8 22 L16 10 L24 22" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M11 18 L21 18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-name">CymClaw</span>
+      <span class="brand-tagline">Docker · Gemini · OpenClaw</span>
+    </div>
+    <div id="status-badge" class="badge badge-loading">checking...</div>
+  </header>
+
+  <main>
+    <section class="card" id="status-card">
+      <h2>Status</h2>
+      <div class="status-grid">
+        <div class="status-item">
+          <span class="status-dot" id="sandbox-dot"></span>
+          <span class="status-label">Sandbox</span>
+          <span class="status-value" id="sandbox-status">—</span>
+        </div>
+        <div class="status-item">
+          <span class="status-dot" id="gateway-dot"></span>
+          <span class="status-label">Gateway</span>
+          <span class="status-value" id="gateway-status">—</span>
+        </div>
+      </div>
+      <div class="action-row">
+        <button id="btn-start" class="btn btn-primary">▶ Start</button>
+        <button id="btn-stop"  class="btn btn-danger">■ Stop</button>
+        <button id="btn-refresh" class="btn btn-ghost">↻ Refresh</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Configuration</h2>
+      <form id="config-form">
+        <div class="field">
+          <label for="geminiApiKey">Gemini API Key</label>
+          <input type="password" id="geminiApiKey" name="geminiApiKey" placeholder="AIza..." autocomplete="off">
+          <small>Get a key at <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a></small>
+        </div>
+        <div class="field">
+          <label for="model">Model</label>
+          <select id="model" name="model">
+            <option value="gemini-2.0-flash-exp">gemini-2.0-flash-exp (recommended)</option>
+            <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+            <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>
+            <input type="checkbox" id="logAudit" name="logAudit">
+            Enable audit logging
+          </label>
+        </div>
+        <div class="field">
+          <label for="gatewayPort">Gateway Port</label>
+          <input type="number" id="gatewayPort" name="gatewayPort" min="1024" max="65535">
+        </div>
+        <div class="action-row">
+          <button type="submit" class="btn btn-primary">Save Config</button>
+          <span id="save-status" class="save-msg"></span>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Network Whitelist</h2>
+      <p class="hint">Only these hosts can be reached from the sandbox.</p>
+      <ul id="whitelist" class="whitelist-list"></ul>
+      <div class="add-host-row">
+        <input type="text" id="new-host" placeholder="api.example.com" autocomplete="off">
+        <button id="btn-add-host" class="btn btn-secondary">+ Add</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Audit Log</h2>
+      <p class="hint">Recent inference requests through the gateway.</p>
+      <div id="audit-log" class="audit-log"></div>
+      <button id="btn-clear-audit" class="btn btn-ghost btn-sm">Clear display</button>
+    </section>
+  </main>
+
+  <footer>
+    <span>CymClaw v<span id="ver">0.1.0</span></span>
+    <span> · <a href="https://github.com/cympack/cymclaw" target="_blank">GitHub</a></span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

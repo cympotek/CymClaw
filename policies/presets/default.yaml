@@ -1,0 +1,19 @@
+# CymClaw — default preset
+# Gemini + OpenClaw + GitHub + npm
+# SPDX-License-Identifier: Apache-2.0
+
+name: default
+description: "Default: Gemini AI + OpenClaw + GitHub + npm"
+
+whitelist:
+  - generativelanguage.googleapis.com
+  - api.anthropic.com
+  - statsig.anthropic.com
+  - openclaw.ai
+  - clawhub.com
+  - docs.openclaw.ai
+  - github.com
+  - api.github.com
+  - raw.githubusercontent.com
+  - objects.githubusercontent.com
+  - registry.npmjs.org

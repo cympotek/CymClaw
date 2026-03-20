@@ -1,0 +1,51 @@
+{
+  "name": "cymclaw",
+  "version": "0.1.0",
+  "description": "CymClaw — run OpenClaw inside Docker with Gemini 3 Flash Preview",
+  "license": "Apache-2.0",
+  "bin": {
+    "cymclaw": "./bin/cymclaw.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "node --test test/*.test.js",
+    "gateway": "node gateway/server.js",
+    "lint": "eslint 'cli/**/*.ts' 'gateway/**/*.ts'"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "http-proxy": "^1.18.1",
+    "inquirer": "^10.2.2",
+    "js-yaml": "^4.1.0",
+    "node-fetch": "^3.3.2",
+    "open": "^10.1.0",
+    "ora": "^8.1.1"
+  },
+  "devDependencies": {
+    "@types/http-proxy": "^1.17.15",
+    "@types/inquirer": "^9.0.7",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0"
+  },
+  "files": [
+    "bin/",
+    "cli/",
+    "gateway/",
+    "policies/",
+    "sandbox/",
+    "scripts/",
+    "ui/"
+  ],
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cympack/cymclaw.git"
+  }
+}

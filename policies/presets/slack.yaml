@@ -1,0 +1,12 @@
+# CymClaw — Slack preset
+# SPDX-License-Identifier: Apache-2.0
+
+name: slack
+description: "Slack: default + Slack API"
+
+extends: default
+whitelist:
+  - slack.com
+  - api.slack.com
+  - files.slack.com
+  - hooks.slack.com

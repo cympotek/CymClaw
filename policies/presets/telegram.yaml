@@ -1,0 +1,9 @@
+# CymClaw — Telegram preset
+# SPDX-License-Identifier: Apache-2.0
+
+name: telegram
+description: "Telegram: default + Telegram Bot API"
+
+extends: default
+whitelist:
+  - api.telegram.org

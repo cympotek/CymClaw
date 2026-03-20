@@ -1,0 +1,12 @@
+# CymClaw — CymPack preset
+# Adds Jina AI and Pacdora to the default whitelist
+# SPDX-License-Identifier: Apache-2.0
+
+name: cympack
+description: "CymPack: default + Jina + Pacdora"
+
+extends: default
+whitelist:
+  - r.jina.ai
+  - api.jina.ai
+  - api.pacdora.com
