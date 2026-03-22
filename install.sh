@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/cympack/cymclaw/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/cympotek/CymClaw/main/install.sh | bash
 #   or locally: bash install.sh
 
 set -euo pipefail
@@ -158,7 +158,7 @@ install_cymclaw() {
     pnpm link --global
   else
     info "Installing CymClaw from GitHub..."
-    pnpm install -g git+https://github.com/cympack/cymclaw.git
+    pnpm install -g git+https://github.com/cympotek/CymClaw.git
   fi
   refresh_path
   # Create shim if npm global bin not on PATH

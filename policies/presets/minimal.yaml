@@ -1,0 +1,11 @@
+# CymClaw — minimal preset
+# Only allows Gemini API. Nothing else.
+# Use this when you want maximum isolation and your agent only needs inference.
+# SPDX-License-Identifier: Apache-2.0
+
+name: minimal
+description: "Minimal: Gemini API only — maximum network isolation"
+
+whitelist:
+  # Google Generative Language API — required for all Gemini models
+  - generativelanguage.googleapis.com

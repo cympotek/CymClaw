@@ -7,6 +7,24 @@
 let config = {};
 let statusInterval = null;
 
+// ── Theme ─────────────────────────────────────────────────────────
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('cymclaw-theme', theme);
+  document.getElementById('btn-theme').textContent = theme === 'dark' ? '☀' : '🌙';
+}
+
+document.getElementById('btn-theme').addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+});
+
+// Restore saved theme
+(function () {
+  const saved = localStorage.getItem('cymclaw-theme') || 'light';
+  applyTheme(saved);
+})();
+
 // ── API helpers ───────────────────────────────────────────────────
 async function apiGet(path) {
   const r = await fetch(path);
@@ -35,9 +53,14 @@ async function refreshStatus() {
     sandboxDot.className = 'status-dot ' + (s.sandboxRunning ? 'ok' : 'error');
     sandboxVal.textContent = s.sandboxRunning ? 'running' : 'stopped';
 
-    const allOk = s.sandboxRunning;
-    badge.className = 'badge ' + (allOk ? 'badge-ok' : 'badge-error');
-    badge.textContent = allOk ? 'running' : 'stopped';
+    const gatewayDot = document.getElementById('gateway-dot');
+    const gatewayVal = document.getElementById('gateway-status');
+    gatewayDot.className = 'status-dot ' + (s.gatewayRunning ? 'ok' : 'error');
+    gatewayVal.textContent = s.gatewayRunning ? 'running' : 'stopped';
+
+    const allOk = s.sandboxRunning && s.gatewayRunning;
+    badge.className = 'badge ' + (allOk ? 'badge-ok' : s.sandboxRunning || s.gatewayRunning ? 'badge-warn' : 'badge-error');
+    badge.textContent = allOk ? 'running' : s.sandboxRunning || s.gatewayRunning ? 'partial' : 'stopped';
 
     // Audit log
     if (s.recentLogs && s.recentLogs.length > 0) {
@@ -137,24 +160,32 @@ async function saveWhitelist() {
 
 // ── Sandbox controls ───────────────────────────────────────────────
 document.getElementById('btn-start').addEventListener('click', async () => {
-  document.getElementById('btn-start').disabled = true;
-  document.getElementById('btn-start').textContent = 'Starting...';
+  const btn = document.getElementById('btn-start');
+  btn.disabled = true;
+  btn.textContent = 'Starting...';
   try {
     await apiPost('/api/sandbox/start', {});
   } catch {}
   setTimeout(() => {
-    document.getElementById('btn-start').disabled = false;
-    document.getElementById('btn-start').textContent = '▶ Start';
+    btn.disabled = false;
+    btn.textContent = '▶ Start';
     refreshStatus();
   }, 3000);
 });
 
 document.getElementById('btn-stop').addEventListener('click', async () => {
   if (!confirm('Stop the CymClaw sandbox?')) return;
+  const btn = document.getElementById('btn-stop');
+  btn.disabled = true;
+  btn.textContent = 'Stopping...';
   try {
     await apiPost('/api/sandbox/stop', {});
   } catch {}
-  setTimeout(refreshStatus, 1000);
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = '■ Stop';
+    refreshStatus();
+  }, 2000);
 });
 
 document.getElementById('btn-refresh').addEventListener('click', refreshStatus);

@@ -1,0 +1,25 @@
+# CymClaw — development preset
+# More permissive whitelist for development and testing.
+# WARNING: Do not use this in production or with untrusted agents.
+# SPDX-License-Identifier: Apache-2.0
+
+name: development
+description: "Development: default + PyPI + HuggingFace + Docker Hub (not for production)"
+
+extends: default
+
+whitelist:
+  # Python package index — for pip installs during development
+  - pypi.org
+  - files.pythonhosted.org
+
+  # HuggingFace — for model downloads and datasets
+  - huggingface.co
+  - cdn-lfs.huggingface.co
+  - cdn-lfs-us-1.huggingface.co
+
+  # Docker Hub — for pulling images
+  - hub.docker.com
+  - registry-1.docker.io
+  - auth.docker.io
+  - production.cloudflare.docker.com

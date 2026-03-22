@@ -1,12 +1,20 @@
 # CymClaw — Slack preset
+# Extends default with Slack API endpoints.
+# Use this when your agent needs to post to Slack channels or read messages.
 # SPDX-License-Identifier: Apache-2.0
 
 name: slack
 description: "Slack: default + Slack API"
 
 extends: default
+
 whitelist:
+  # Slack web client and API
   - slack.com
   - api.slack.com
+
+  # Slack file uploads/downloads
   - files.slack.com
+
+  # Slack webhooks (incoming webhooks)
   - hooks.slack.com

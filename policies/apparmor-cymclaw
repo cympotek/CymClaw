@@ -1,0 +1,64 @@
+# CymClaw AppArmor profile template
+# Linux only. Provides an additional layer of mandatory access control.
+#
+# Install:
+#   sudo apparmor_parser -r policies/apparmor-cymclaw
+#   Then add --security-opt apparmor=cymclaw-sandbox to docker run
+#
+# SPDX-License-Identifier: Apache-2.0
+
+profile cymclaw-sandbox flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+
+  # Allow network (filtered by Docker --internal + gateway whitelist)
+  network inet tcp,
+  network inet udp,
+  network inet6 tcp,
+  network inet6 udp,
+
+  # Allow standard filesystem access
+  / r,
+  /** r,
+
+  # Allow writes only to sandbox workspace and tmp
+  /sandbox/workspace/ rw,
+  /sandbox/workspace/** rw,
+  /tmp/ rw,
+  /tmp/** rw,
+  /run/ rw,
+  /run/** rw,
+
+  # Allow execution of standard binaries
+  /usr/bin/** ix,
+  /usr/local/bin/** ix,
+  /bin/** ix,
+  /usr/lib/node_modules/** ix,
+  /usr/local/lib/node_modules/** ix,
+
+  # Deny writes to sensitive paths
+  deny /proc/sys/** w,
+  deny /sys/** w,
+  deny /etc/passwd w,
+  deny /etc/shadow w,
+  deny /etc/sudoers w,
+  deny /etc/sudoers.d/** w,
+
+  # Deny raw sockets (prevents network scanning)
+  deny network raw,
+  deny network packet,
+
+  # Allow ptrace only within same profile (needed for Node.js debugging)
+  ptrace (read, trace) peer=cymclaw-sandbox,
+
+  # Allow signals between processes in the container
+  signal (send, receive) peer=cymclaw-sandbox,
+
+  # Deny capability escalation
+  deny capability sys_admin,
+  deny capability sys_module,
+  deny capability sys_rawio,
+  deny capability mknod,
+  deny capability setuid,
+  deny capability setgid,
+}

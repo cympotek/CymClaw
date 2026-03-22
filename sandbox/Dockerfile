@@ -4,7 +4,8 @@
 
 FROM node:22-slim
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive \
+    TZ=UTC
 
 # System packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -14,7 +15,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
         iproute2 \
         procps \
+        python3 \
+        python3-pip \
         tini \
+        tzdata \
+    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone \
     && rm -rf /var/lib/apt/lists/*
 
 # Create sandbox user
@@ -62,7 +68,7 @@ RUN node -e " \
           api: 'openai-completions', \
           models: [{ \
             id: 'gemini-2.0-flash-exp', \
-            name: 'Gemini 3 Flash Preview', \
+            name: 'Gemini 2.0 Flash', \
             reasoning: false, \
             input: ['text'], \
             cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }, \
@@ -79,6 +85,9 @@ RUN node -e " \
 
 # Pre-run openclaw doctor to initialize plugin directories
 RUN openclaw doctor --fix > /dev/null 2>&1 || true
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "require('fs').accessSync('/sandbox/.openclaw/openclaw.json')" || exit 1
 
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/entrypoint.sh"]
 CMD ["bash"]

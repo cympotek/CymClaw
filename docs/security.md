@@ -1,58 +1,100 @@
-# Security
+# Security Model
+
+CymClaw uses defense in depth: multiple independent layers that each limit what a compromised agent can do.
 
 ## Protection Layers
 
 | Layer | Mechanism | Strength |
 |-------|-----------|----------|
 | Network egress | Docker `--internal` + gateway whitelist | Strong on Linux (iptables); gateway-only on macOS |
-| Filesystem | `--read-only` + tmpfs | Prevents persistent writes outside `/sandbox` |
+| Filesystem | `--read-only` + tmpfs | Prevents persistent writes outside `/sandbox/workspace` |
 | Process | `--security-opt no-new-privileges` | No privilege escalation |
-| Syscalls | seccomp profile | Blocks 30+ dangerous syscalls |
-| User | Non-root `sandbox` user | Limits damage if container breakout |
-| Inference | Gateway key injection + logging | Agent never holds the real key |
+| Syscalls | seccomp profile (40+ blocked) | Kernel-level call filtering |
+| User | Non-root `sandbox` user | Limits container breakout damage |
+| Inference | Gateway key injection + audit logging | Agent never holds the real API key |
 
 ## Network Whitelist
 
-Default allowed hosts:
-- `generativelanguage.googleapis.com` — Gemini API
-- `api.anthropic.com` — OpenClaw
-- `openclaw.ai`, `clawhub.com` — OpenClaw services
-- `github.com`, `api.github.com` — git
-- `registry.npmjs.org` — npm
+The gateway enforces an explicit allowlist. Requests to any unlisted host return HTTP 403.
 
-Add hosts with `cymclaw policy add <host>`.
+Default allowed hosts:
+- `generativelanguage.googleapis.com` — Gemini API (always allowed)
+- `api.anthropic.com` — OpenClaw telemetry
+- `openclaw.ai`, `clawhub.com` — OpenClaw services
+- `github.com`, `api.github.com` — git operations
+- `registry.npmjs.org` — npm package installs
+
+Add hosts with `cymclaw policy add <host>` or edit `~/.cymclaw/config.json`.
 
 ### macOS vs Linux
 
 On **Linux**, two layers enforce the whitelist:
-1. The gateway proxy (software)
+1. The gateway proxy (Node.js, user-space)
 2. iptables rules in `CYMCLAW` chain (kernel)
 
-On **macOS**, Docker Desktop does not expose the kernel's network stack the same way. The Docker `--internal` network blocks direct outbound routing, and the gateway proxy is the sole allowed egress path. This is equivalent security for agent use.
+On **macOS**, Docker Desktop does not expose the host kernel's iptables. The Docker `--internal` network still blocks direct outbound routing, and the gateway proxy is the sole allowed egress path. This provides equivalent security for agent use.
 
 ## Seccomp Profile
 
-`policies/cymclaw-seccomp.json` blocks syscalls including:
-- `mount`, `umount` — filesystem mounting
-- `kexec_load`, `kexec_file_load` — kernel replacement
-- `init_module`, `finit_module` — kernel modules
-- `reboot` — system reboot
-- `bpf` — kernel eBPF programs
-- `iopl`, `ioperm` — direct I/O port access
-- `ptrace` — process tracing (partially restricted)
-- `pivot_root` — container escape vector
+`policies/cymclaw-seccomp.json` uses an allowlist model (default: deny). It permits ~130 standard POSIX syscalls and blocks dangerous ones including:
+
+| Blocked syscall | Risk prevented |
+|-----------------|----------------|
+| `mount`, `umount2` | Filesystem mounting |
+| `kexec_load`, `kexec_file_load` | Kernel replacement |
+| `init_module`, `finit_module` | Kernel module loading |
+| `reboot` | System reboot |
+| `bpf` | eBPF programs (kernel manipulation) |
+| `iopl`, `ioperm` | Direct hardware I/O |
+| `ptrace` | Process tracing (restricted) |
+| `pivot_root` | Container escape vector |
+| `clone` with `CLONE_NEWUSER` | User namespace privilege escalation |
+| `unshare` with `CLONE_NEWUSER` | Same |
+
+## AppArmor (Linux)
+
+An AppArmor profile template is provided at `policies/apparmor-cymclaw`. On systems with AppArmor enabled, load it with:
+
+```bash
+sudo apparmor_parser -r policies/apparmor-cymclaw
+docker run --security-opt apparmor=cymclaw-sandbox ...
+```
+
+The profile restricts:
+- `/proc` writes (prevents kernel parameter manipulation)
+- `/sys` writes
+- Raw network socket creation
+- Execution of interpreters outside `/sandbox`
 
 ## API Key Security
 
 The Gemini API key is:
-- Stored in `~/.cymclaw/config.json` (mode 600, readable only by owner)
-- Injected into the sandbox at startup via `docker run -e`
-- Never visible inside the container as a plain variable after startup (it is written into `openclaw.json` by `entrypoint.sh` and the env var is available in the container env — this is a known limitation of `docker run -e`)
+- Stored in `~/.cymclaw/config.json` (mode 600, owner-readable only)
+- Passed to the gateway at startup via environment variable
+- Written into `openclaw.json` inside the container at runtime by `entrypoint.sh`
+- **Never exposed to the sandbox as a directly readable variable** after the entrypoint runs
+
+**Known limitation:** The key is visible in `docker inspect` output and in `/proc/<pid>/environ` inside the container while the process runs. This is a fundamental limitation of `docker run -e`. For higher-assurance deployments, consider Docker secrets or a secrets manager.
 
 ## Audit Log
 
-All inference requests through the gateway are logged to `~/.cymclaw/audit.log`. Each line includes timestamp, method, host, and path. The log is readable in `cymclaw status` and the web UI.
+All requests through the gateway are logged to `~/.cymclaw/audit.log`:
 
-## Reporting Issues
+```
+[2026-03-15T12:34:56.789Z] ALLOW POST generativelanguage.googleapis.com/v1beta/openai/chat/completions (1234B)
+[2026-03-15T12:35:01.123Z] BLOCK GET evil.example.com/exfil
+```
 
-File security issues at: https://github.com/cympack/cymclaw/security/advisories
+Each line: timestamp, verdict (ALLOW/BLOCK/ERROR), method, host+path, body size.
+
+View recent entries in `cymclaw status` or the web UI.
+
+## Rate Limiting
+
+The gateway enforces a per-IP rate limit (default: 60 requests/minute for external IPs). Sandbox containers on the internal Docker network (`172.x.x.x`) are exempt.
+
+## Reporting Vulnerabilities
+
+File security issues at: https://github.com/cympotek/CymClaw/security/advisories
+
+Do **not** open public GitHub issues for security vulnerabilities.
