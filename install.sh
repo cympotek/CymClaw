@@ -56,7 +56,11 @@ install_docker_linux() {
     return
   fi
   info "Installing Docker..."
-  curl -fsSL https://get.docker.com | sh
+  local docker_tmp
+  docker_tmp="$(mktemp)"
+  curl -fsSL https://get.docker.com -o "$docker_tmp"
+  sh "$docker_tmp"
+  rm -f "$docker_tmp"
   sudo usermod -aG docker "$USER" || true
   info "Docker installed. You may need to log out and back in for group membership."
   # Start Docker service

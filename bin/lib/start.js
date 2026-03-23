@@ -81,6 +81,19 @@ async function startSandbox() {
   // ── Start sandbox ─────────────────────────────────────────────
   console.log(`  Starting sandbox '${SANDBOX_NAME}'...`);
 
+  // Write sandbox env vars to a file (mode 600) to prevent API key appearing
+  // in process args (visible via ps aux when passed as -e KEY=value).
+  const sandboxEnvFile = path.join(CONFIG_DIR, '.sandbox.env');
+  fs.writeFileSync(
+    sandboxEnvFile,
+    [
+      `OPENAI_API_KEY=${cfg.geminiApiKey}`,
+      `OPENAI_BASE_URL=http://${hostGatewayIp}:${cfg.gatewayPort || GATEWAY_PORT}/v1`,
+      `CYMCLAW_MODEL=${cfg.model}`,
+    ].join('\n') + '\n',
+    { mode: 0o600 },
+  );
+
   const seccompPath = path.join(CONFIG_DIR, 'cymclaw-seccomp.json');
   const hasSeccomp  = fs.existsSync(seccompPath);
 
@@ -108,10 +121,8 @@ async function startSandbox() {
     '--tmpfs /run:size=64m',
     `-v cymclaw-workspace:/sandbox/workspace`,
     `-p ${SANDBOX_PORT}:${SANDBOX_PORT}`,
-    // Point gateway URL to host gateway IP
-    `-e OPENAI_API_KEY=${cfg.geminiApiKey}`,
-    `-e OPENAI_BASE_URL=http://${hostGatewayIp}:${cfg.gatewayPort || GATEWAY_PORT}/v1`,
-    `-e CYMCLAW_MODEL=${cfg.model}`,
+    // Env vars via file to keep API key out of process args (ps aux)
+    `--env-file ${sandboxEnvFile}`,
     // Allow container to reach host gateway via host-gateway extra host
     `--add-host=cymclaw-gateway:${hostGatewayIp}`,
     SANDBOX_IMAGE,

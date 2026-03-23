@@ -2,7 +2,7 @@
 # OpenClaw pre-installed, Gemini-configured, non-root sandbox user
 # SPDX-License-Identifier: Apache-2.0
 
-FROM node:22-slim
+FROM node:22-slim@sha256:4f77a690f2f8946ab16fe1e791a3ac0667ae1c3575c3e4d0d4589e9ed5bfaf3d
 
 ENV DEBIAN_FRONTEND=noninteractive \
     TZ=UTC
@@ -30,7 +30,7 @@ RUN groupadd -r sandbox && \
     chown -R sandbox:sandbox /sandbox
 
 # Install OpenClaw CLI globally
-RUN npm install -g openclaw@2026.3.11 --ignore-scripts
+RUN npm install -g openclaw@2026.3.22 --ignore-scripts
 
 # Copy entrypoint
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh

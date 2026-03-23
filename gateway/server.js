@@ -88,7 +88,27 @@ function readBody(req) {
   });
 }
 
+// Reject private/loopback/link-local IPs to prevent SSRF attacks.
+// Even if somehow added to the whitelist these must never be proxied.
+function isPrivateHost(host) {
+  const privatePatterns = [
+    /^localhost$/i,
+    /^127\./,
+    /^10\./,
+    /^192\.168\./,
+    /^172\.(1[6-9]|2\d|3[01])\./,
+    /^169\.254\./,
+    /^0\.0\.0\.0$/,
+    /^::1$/,
+    /^fc[0-9a-f]{2}:/i,
+    /^fd[0-9a-f]{2}:/i,
+    /^fe80:/i,
+  ];
+  return privatePatterns.some((p) => p.test(host));
+}
+
 function isWhitelisted(targetHost) {
+  if (isPrivateHost(targetHost)) return false;
   if (WHITELIST.has(targetHost)) return true;
   // Check suffix match (e.g. *.googleapis.com)
   for (const h of WHITELIST) {

@@ -13,6 +13,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen)](package.json)
 [![Status](https://img.shields.io/badge/status-alpha-orange)](docs/quickstart.md)
+[![NemoClaw sync](https://img.shields.io/badge/NemoClaw%20sync-2026--03--23-blue)](SYNC_LOG.md)
 
 CymClaw runs [OpenClaw](https://openclaw.ai) always-on AI agents safely inside Docker, with inference routed through [Google AI](https://ai.google.dev) (Gemini 2.0 Flash). It is inspired by NVIDIA NemoClaw but replaces OpenShift with pure Docker for easier local deployment.
 
