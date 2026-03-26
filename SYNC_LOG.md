@@ -1,5 +1,24 @@
 # CymClaw — NemoClaw Sync Log
 
+## 2026-03-26
+
+### NemoClaw commits applied
+
+| Issue | Description |
+|-------|-------------|
+| #830 | Harden sandbox: add `ulimit -u 512` (hard+soft) to prevent fork bombs |
+| #917 | Drop unnecessary Linux capabilities at startup via `capsh` (CAP_NET_RAW, CAP_DAC_OVERRIDE, etc.) |
+| #929 | Keep `cap_setpcap` so capsh can drop other capabilities |
+
+### OpenClaw version
+
+`openclaw@2026.3.22` → `openclaw@2026.3.24`
+
+### Files changed
+
+- `sandbox/Dockerfile` — added `libcap2-bin` package for capsh; bumped openclaw to 2026.3.24
+- `sandbox/entrypoint.sh` — added ulimit fork-bomb protection; added capsh capability drop at startup
+
 ## 2026-03-23
 
 ### NemoClaw commits applied

@@ -1,8 +1,51 @@
 #!/bin/bash
 # CymClaw sandbox entrypoint
 # SPDX-License-Identifier: Apache-2.0
+#
+# SECURITY: Lock down PATH to prevent the sandboxed agent from injecting
+# malicious binaries into commands executed by this entrypoint.
+# Ref: NemoClaw bb8ba78 (gateway isolation from sandbox agent)
 
 set -euo pipefail
+
+# Harden: limit process count to prevent fork bombs (ref: NemoClaw #809, #830)
+ulimit -Hu 512 2>/dev/null || echo "[SECURITY] Failed to set hard nproc limit" >&2
+ulimit -Su 512 2>/dev/null || echo "[SECURITY] Failed to set soft nproc limit" >&2
+
+# SECURITY: Lock down PATH
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# ── Drop unnecessary Linux capabilities ──────────────────────────
+# Ref: NemoClaw #797, #917, #929
+# Drop dangerous caps from the bounding set. Keeps only caps needed for
+# tini/gosu privilege separation: cap_chown, cap_setuid, cap_setgid,
+# cap_fowner, cap_kill.
+if [ "${CYMCLAW_CAPS_DROPPED:-}" != "1" ] && command -v capsh >/dev/null 2>&1; then
+  if capsh --has-p=cap_setpcap 2>/dev/null; then
+    export CYMCLAW_CAPS_DROPPED=1
+    exec capsh \
+      --drop=cap_net_raw,cap_dac_override,cap_sys_chroot,cap_fsetid,cap_setfcap,cap_mknod,cap_audit_write,cap_net_bind_service \
+      -- -c 'exec /usr/local/bin/entrypoint.sh "$@"' -- "$@"
+  else
+    echo "[SECURITY] CAP_SETPCAP not available — runtime already restricts capabilities" >&2
+  fi
+elif [ "${CYMCLAW_CAPS_DROPPED:-}" != "1" ]; then
+  echo "[SECURITY WARNING] capsh not available — running with default capabilities" >&2
+fi
+
+# ── Config integrity check ────────────────────────────────────────
+# Verify openclaw.json has not been tampered with since image build.
+verify_config_integrity() {
+  local hash_file="/sandbox/.openclaw/.config-hash"
+  if [ -f "$hash_file" ]; then
+    if ! (cd /sandbox/.openclaw && sha256sum -c "$hash_file" --status 2>/dev/null); then
+      echo "[SECURITY] openclaw.json integrity check FAILED — config may have been tampered with"
+      exit 1
+    fi
+  fi
+}
+
+verify_config_integrity
 
 # ── Patch openclaw.json with runtime env vars ─────────────────────
 # OPENAI_API_KEY and OPENAI_BASE_URL are set by docker run

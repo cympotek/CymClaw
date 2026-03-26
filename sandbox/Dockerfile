@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
         git \
         iproute2 \
+        libcap2-bin \
         procps \
         python3 \
         python3-pip \
@@ -30,7 +31,7 @@ RUN groupadd -r sandbox && \
     chown -R sandbox:sandbox /sandbox
 
 # Install OpenClaw CLI globally
-RUN npm install -g openclaw@2026.3.22 --ignore-scripts
+RUN npm install -g openclaw@2026.3.24 --ignore-scripts
 
 # Copy entrypoint
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
