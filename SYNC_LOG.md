@@ -1,5 +1,32 @@
 # CymClaw — NemoClaw Sync Log
 
+## 2026-03-27
+
+### NemoClaw commits applied
+
+| Issue | Description |
+|-------|-------------|
+| #951 | Fix ulimit order: set soft limit before hard limit to prevent silent failures |
+
+### OpenClaw version
+
+`openclaw@2026.3.24` (unchanged)
+
+### Files changed
+
+- `sandbox/entrypoint.sh` — swapped ulimit soft/hard order; improved error messages to match upstream best-effort pattern
+
+### Skipped (not applicable to CymClaw)
+
+- #438 — WebSocket CONNECT tunnel for Discord/Slack presets (NemoClaw policy-specific)
+- #913 — tsconfig.cli.json, TS coverage ratchet (NemoClaw dev tooling)
+- #953 — Gateway lifecycle recovery (NemoClaw CLI-specific)
+- #337 — Docker volume cleanup after failed gateway start (NemoClaw CLI-specific)
+- #947 — ulimit best-effort + PATH test regression (ulimit part already applied; test is NemoClaw-specific)
+- #840 — Node.js minimum version standardization (docs only)
+- #875 — Cyclomatic complexity lint rule (dev tooling)
+- #903, #925, #885, #950 — Docs and CI only
+
 ## 2026-03-26
 
 ### NemoClaw commits applied

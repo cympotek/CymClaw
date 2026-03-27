@@ -9,8 +9,15 @@
 set -euo pipefail
 
 # Harden: limit process count to prevent fork bombs (ref: NemoClaw #809, #830)
-ulimit -Hu 512 2>/dev/null || echo "[SECURITY] Failed to set hard nproc limit" >&2
-ulimit -Su 512 2>/dev/null || echo "[SECURITY] Failed to set soft nproc limit" >&2
+# Best-effort: some container runtimes restrict ulimit modification.
+# Set soft limit BEFORE hard limit (ref: NemoClaw #951 — wrong order caused
+# silent failures when soft > hard ceiling).
+if ! ulimit -Su 512 2>/dev/null; then
+  echo "[SECURITY] Could not set soft nproc limit (container runtime may restrict ulimit)" >&2
+fi
+if ! ulimit -Hu 512 2>/dev/null; then
+  echo "[SECURITY] Could not set hard nproc limit (container runtime may restrict ulimit)" >&2
+fi
 
 # SECURITY: Lock down PATH
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
