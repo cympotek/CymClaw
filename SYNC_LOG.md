@@ -1,5 +1,40 @@
 # CymClaw — NemoClaw Sync Log
 
+## 2026-03-28
+
+### NemoClaw commits reviewed
+
+| Commit | Description | Action |
+|--------|-------------|--------|
+| 5f692e5 | fix(policies): preset application for versionless policies (#101) | Skipped — NemoClaw-specific preset logic, CymClaw uses simple whitelist |
+| c051cbb | fix(sandbox): export proxy env vars with NO_PROXY (#1025) | Skipped — DGX Spark/Brev-specific, CymClaw uses Docker bridge networking |
+| 6f9d530 | **fix(security): strip credentials from migration snapshots (#769)** | **Applied** — ported credential stripping to entrypoint.sh |
+| a03eda0 | fix: harden installer and onboard resiliency (#961) | Skipped — NemoClaw installer/onboard lifecycle, not applicable |
+
+### Security fix applied
+
+**NemoClaw #769 — credential stripping (defense-in-depth)**
+
+Ported the `stripCredentials()` sanitization logic to `sandbox/entrypoint.sh`.
+Before runtime env vars are patched into `openclaw.json`, the entrypoint now:
+1. Strips all credential fields (`apiKey`, `token`, `secret`, `password`, etc.)
+2. Removes the `gateway` config section (may contain auth tokens)
+3. Uses pattern-based detection for fields like `accessToken`, `clientSecret`
+
+This ensures even if credentials are accidentally baked into the Docker image,
+they are scrubbed before the sandboxed agent can read them. Credentials are then
+injected fresh from runtime environment variables.
+
+### Files changed
+
+- `sandbox/entrypoint.sh` — added credential sanitization block before runtime patching
+
+### Commits not applied (rationale)
+
+- **Policies preset (#101)**: NemoClaw's policy presets are a versioned policy distribution system for DGX environments. CymClaw uses a simpler per-host whitelist (`policies/network-whitelist.yaml`). No equivalent logic to fix.
+- **Proxy env vars (#1025)**: Specific to NemoClaw's OpenShell sandbox reconnect on DGX Spark/Brev. CymClaw containers use Docker internal networking with a gateway proxy — no proxy env var injection needed.
+- **Installer hardening (#961)**: NemoClaw's `install.sh` and onboard wizard overhaul. CymClaw has its own installer (`scripts/setup-docker.sh`) with a different architecture.
+
 ## 2026-03-27
 
 ### NemoClaw commits applied

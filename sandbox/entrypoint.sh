@@ -54,6 +54,47 @@ verify_config_integrity() {
 
 verify_config_integrity
 
+# ── Credential sanitization (defense-in-depth) ───────────────────
+# Strip any residual credentials from openclaw.json before runtime injection.
+# Even if credentials were accidentally baked into the image, this ensures they
+# never persist in the sandbox filesystem where a compromised agent can read them.
+# Ref: NemoClaw 6f9d530 — strip credentials from migration snapshots (#769)
+if [[ -f /sandbox/.openclaw/openclaw.json ]]; then
+  node - <<'SANITIZE'
+const fs = require('fs');
+const p = '/sandbox/.openclaw/openclaw.json';
+const raw = fs.readFileSync(p, 'utf-8');
+let cfg;
+try { cfg = JSON.parse(raw); } catch { process.exit(0); }
+if (!cfg || typeof cfg !== 'object') process.exit(0);
+
+const CREDENTIAL_FIELDS = new Set([
+  'apiKey', 'api_key', 'token', 'secret', 'password', 'resolvedKey'
+]);
+const CREDENTIAL_PATTERN =
+  /(?:access|refresh|client|bearer|auth|api|private|public|signing|session)(?:Token|Key|Secret|Password)$/;
+
+function strip(obj) {
+  if (obj === null || obj === undefined || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(strip);
+  const out = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (CREDENTIAL_FIELDS.has(k) || CREDENTIAL_PATTERN.test(k)) {
+      out[k] = '[STRIPPED_BY_CYMCLAW]';
+    } else {
+      out[k] = strip(v);
+    }
+  }
+  return out;
+}
+
+// Remove gateway section (may contain auth tokens)
+delete cfg.gateway;
+const sanitized = strip(cfg);
+fs.writeFileSync(p, JSON.stringify(sanitized, null, 2), { mode: 0o600 });
+SANITIZE
+fi
+
 # ── Patch openclaw.json with runtime env vars ─────────────────────
 # OPENAI_API_KEY and OPENAI_BASE_URL are set by docker run
 # We patch the openclaw.json to use the gateway URL at runtime.
