@@ -1,5 +1,21 @@
 # CymClaw — NemoClaw Sync Log
 
+## 2026-03-30
+
+### NemoClaw commits reviewed
+
+| Commit | Description | Action |
+|--------|-------------|--------|
+| cae0f87 | fix(sandbox): restore sandbox DNS resolution for web tools (#1062) | Skipped — NemoClaw OpenShell sandbox network namespace DNS proxy; CymClaw uses Docker bridge networking without isolated veth namespaces |
+
+### OpenClaw version
+
+`openclaw@2026.3.28` (unchanged)
+
+### No action required
+
+The only commit since last sync is a DNS forwarder for NemoClaw's isolated sandbox network namespace (10.200.0.0/24 veth pair with iptables). CymClaw's Docker sandbox uses standard bridge networking where DNS resolution works natively. No security implications.
+
 ## 2026-03-28
 
 ### NemoClaw commits reviewed
