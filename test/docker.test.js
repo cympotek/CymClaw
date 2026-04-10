@@ -50,6 +50,8 @@ describe('config', () => {
     assert.equal(cfg.model, DEFAULTS.model);
     assert.equal(cfg.gatewayPort, DEFAULTS.gatewayPort);
     assert.deepEqual(cfg.networkWhitelist, DEFAULTS.networkWhitelist);
+    assert.ok(!cfg.networkWhitelist.includes('github.com'));
+    assert.ok(!cfg.networkWhitelist.includes('api.github.com'));
   });
 
   it('saveConfig and loadConfig roundtrip', () => {

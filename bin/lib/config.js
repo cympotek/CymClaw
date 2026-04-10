@@ -19,8 +19,6 @@ const DEFAULTS = {
   networkWhitelist: [
     'generativelanguage.googleapis.com',
     'api.anthropic.com',
-    'github.com',
-    'api.github.com',
     'registry.npmjs.org',
     'openclaw.ai',
     'clawhub.com',

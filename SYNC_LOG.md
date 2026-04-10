@@ -1,5 +1,47 @@
 # CymClaw — NemoClaw Sync Log
 
+## 2026-04-10
+
+### NemoClaw commits reviewed
+
+| Commit | Description | Action |
+|--------|-------------|--------|
+| 55ba539 | **fix(security): gate GitHub access behind an opt-in policy preset** (#1583/#1660) | **Applied** — removed GitHub from CymClaw default whitelist, added opt-in `github.yaml` preset, updated docs/tests |
+| 77051cc | fix(security): remove pre-allowed messaging from base sandbox policy (#1705) | Skipped — CymClaw default whitelist already excludes Telegram/Discord; messaging stays opt-in via channel presets |
+| d8d0d44 | fix(security): drop POST allow rule from huggingface preset (#1432/#1663) | Skipped — CymClaw whitelist is host-level only; no method-scoped HuggingFace allow rules exist |
+| 19839be | fix(policy): block POST to sentry.io to prevent multi-tenant data exfiltration (#1437/#1625) | Skipped — CymClaw has no default `sentry.io` allowlist entry |
+| a7cafd0 | fix(policy): restrict npm and PyPI presets to GET-only REST rules (#1672) | Skipped — CymClaw does not yet support method-level REST policy rules; current npm/PyPI exposure is host-only |
+| 57580bd | fix(security): validate run ID in rollback to prevent path traversal [MEDIUM] (#1559) | Skipped — CymClaw has no rollback/run-id path handling flow |
+
+### Security fix applied
+
+**NemoClaw #1583 / #1660 — GitHub access is now opt-in by default**
+
+CymClaw previously exposed `github.com` and `api.github.com` in the runtime default whitelist.
+That meant every sandbox started with repo/API reachability even when the task only needed inference.
+
+Applied changes:
+1. Removed GitHub from `bin/lib/config.js` default `networkWhitelist`
+2. Removed GitHub from the documented default preset / default whitelist
+3. Added `policies/presets/github.yaml` for explicit opt-in
+4. Updated tests to assert GitHub is no longer present in the default preset/config
+
+### OpenClaw version
+
+`sandbox/Dockerfile`: `openclaw@2026.3.28` → `openclaw@2026.4.9`
+
+### Files changed
+
+- `bin/lib/config.js` — removed default GitHub hosts
+- `policies/presets/default.yaml` — removed GitHub from default preset
+- `policies/presets/github.yaml` — added opt-in GitHub preset
+- `policies/network-whitelist.yaml` — documented GitHub as opt-in, not default
+- `docs/security.md` — updated default-host docs + GitHub opt-in note
+- `README.md` — updated preset table / FAQ / sync badge
+- `test/docker.test.js` — assert GitHub absent from defaults
+- `test/policy.test.js` — assert `github.yaml` exists and default preset excludes GitHub
+- `sandbox/Dockerfile` — bumped OpenClaw to `2026.4.9`
+
 ## 2026-03-30
 
 ### NemoClaw commits reviewed

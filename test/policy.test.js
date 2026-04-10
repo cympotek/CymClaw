@@ -55,6 +55,22 @@ describe('policy presets', () => {
     assert.ok(doc.whitelist.includes('api.slack.com'));
   });
 
+  it('github preset exists and default does not include GitHub by default', () => {
+    const yaml = require('js-yaml');
+    const defaultFile = path.join(PRESETS_DIR, 'default.yaml');
+    const githubFile = path.join(PRESETS_DIR, 'github.yaml');
+    assert.ok(fs.existsSync(githubFile), 'github.yaml should exist');
+
+    const defaultDoc = yaml.load(fs.readFileSync(defaultFile, 'utf-8'));
+    const githubDoc = yaml.load(fs.readFileSync(githubFile, 'utf-8'));
+
+    assert.equal(githubDoc.name, 'github');
+    assert.equal(githubDoc.extends, 'default');
+    assert.ok(githubDoc.whitelist.includes('github.com'));
+    assert.ok(!defaultDoc.whitelist.includes('github.com'));
+    assert.ok(!defaultDoc.whitelist.includes('api.github.com'));
+  });
+
   it('all presets have name and description fields', () => {
     const yaml = require('js-yaml');
     const files = fs.readdirSync(PRESETS_DIR).filter((f) => f.endsWith('.yaml'));
@@ -96,10 +112,10 @@ describe('policy module', () => {
     const { loadConfig, saveConfig } = require('../bin/lib/config');
     const { policyRemove } = require('../bin/lib/policy');
     // Set up config with a test host
-    saveConfig({ networkWhitelist: ['api.test.example.com', 'api.github.com'] });
+    saveConfig({ networkWhitelist: ['api.test.example.com', 'registry.npmjs.org'] });
     await policyRemove('api.test.example.com');
     const cfg = loadConfig();
     assert.ok(!cfg.networkWhitelist.includes('api.test.example.com'));
-    assert.ok(cfg.networkWhitelist.includes('api.github.com'));
+    assert.ok(cfg.networkWhitelist.includes('registry.npmjs.org'));
   });
 });

@@ -13,7 +13,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen)](package.json)
 [![Status](https://img.shields.io/badge/status-alpha-orange)](docs/quickstart.md)
-[![NemoClaw sync](https://img.shields.io/badge/NemoClaw%20sync-2026--03--23-blue)](SYNC_LOG.md)
+[![NemoClaw sync](https://img.shields.io/badge/NemoClaw%20sync-2026--04--10-blue)](SYNC_LOG.md)
 
 CymClaw runs [OpenClaw](https://openclaw.ai) always-on AI agents safely inside Docker, with inference routed through [Google AI](https://ai.google.dev) (Gemini 2.0 Flash). It is inspired by NVIDIA NemoClaw but replaces OpenShift with pure Docker for easier local deployment.
 
@@ -191,7 +191,8 @@ Features:
 
 | Preset | Included hosts |
 |--------|---------------|
-| `default` | Gemini, Anthropic, OpenClaw, GitHub, npm |
+| `default` | Gemini, Anthropic, OpenClaw, npm |
+| `github` | default + GitHub repo/API access |
 | `minimal` | Gemini only |
 | `development` | default + PyPI, HuggingFace, Docker Hub |
 | `cympack` | default + Jina AI, Pacdora |
@@ -204,6 +205,9 @@ Features:
 
 **Q: Does the sandbox have internet access?**
 A: Only to hosts on the whitelist, via the gateway proxy. The Docker `--internal` network blocks all other outbound traffic.
+
+**Q: Is GitHub allowed by default?**
+A: No. GitHub access is opt-in now, because repo/API access is broader than most agent sessions need.
 
 **Q: Is my Gemini API key safe?**
 A: The key is stored in `~/.cymclaw/config.json` (mode 600) and injected into the gateway at startup. The sandbox container never receives the real key directly.

@@ -31,7 +31,7 @@ RUN groupadd -r sandbox && \
     chown -R sandbox:sandbox /sandbox
 
 # Install OpenClaw CLI globally
-RUN npm install -g openclaw@2026.3.24 --ignore-scripts
+RUN npm install -g openclaw@2026.4.9 --ignore-scripts
 
 # Copy entrypoint
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh

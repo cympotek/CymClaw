@@ -1,0 +1,18 @@
+# CymClaw — GitHub preset
+# Opt-in access for git clone/push and GitHub API operations.
+# Use this only when the sandbox truly needs repository access.
+# SPDX-License-Identifier: Apache-2.0
+
+name: github
+description: "GitHub: default + GitHub git/API access"
+
+extends: default
+
+whitelist:
+  # GitHub web and API
+  - github.com
+  - api.github.com
+
+  # Raw/blob object fetches used by git and source downloads
+  - raw.githubusercontent.com
+  - objects.githubusercontent.com

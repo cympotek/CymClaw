@@ -1,10 +1,10 @@
 # CymClaw — default preset
-# Gemini AI + OpenClaw platform + GitHub + npm
-# This preset is loaded automatically on first install.
+# Gemini AI + OpenClaw platform + npm
+# GitHub is intentionally opt-in via presets/github.yaml.
 # SPDX-License-Identifier: Apache-2.0
 
 name: default
-description: "Default: Gemini AI + OpenClaw + GitHub + npm"
+description: "Default: Gemini AI + OpenClaw + npm"
 
 whitelist:
   # Google Generative Language API — primary inference endpoint
@@ -18,12 +18,6 @@ whitelist:
   - openclaw.ai
   - clawhub.com
   - docs.openclaw.ai
-
-  # GitHub — source code, git operations, raw file access
-  - github.com
-  - api.github.com
-  - raw.githubusercontent.com
-  - objects.githubusercontent.com
 
   # npm registry — package installs inside the sandbox
   - registry.npmjs.org

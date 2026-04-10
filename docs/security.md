@@ -21,10 +21,9 @@ Default allowed hosts:
 - `generativelanguage.googleapis.com` — Gemini API (always allowed)
 - `api.anthropic.com` — OpenClaw telemetry
 - `openclaw.ai`, `clawhub.com` — OpenClaw services
-- `github.com`, `api.github.com` — git operations
 - `registry.npmjs.org` — npm package installs
 
-Add hosts with `cymclaw policy add <host>` or edit `~/.cymclaw/config.json`.
+GitHub access is intentionally opt-in. Add it with `cymclaw policy add <host>` or the `github` preset when a sandbox truly needs repo access.
 
 ### macOS vs Linux
 

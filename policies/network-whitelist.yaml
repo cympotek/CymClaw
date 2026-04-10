@@ -35,16 +35,8 @@ endpoints:
     port: 443
     protocol: https
 
-  github:
-    name: github
-    description: "GitHub (git operations)"
-    hosts:
-      - github.com
-      - api.github.com
-      - objects.githubusercontent.com
-      - raw.githubusercontent.com
-    port: 443
-    protocol: https
+  # GitHub access is intentionally not in the default whitelist.
+  # Opt in explicitly via `cymclaw policy add <host>` or the github preset.
 
   npm_registry:
     name: npm_registry
